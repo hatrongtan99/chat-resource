@@ -20,6 +20,7 @@ export class UsersService {
         let fieldSelecs: (keyof Users)[] = [
             'email',
             'id',
+            'profile',
             'created_at',
             'updated_at',
             'provider',
@@ -31,6 +32,7 @@ export class UsersService {
         return this.usersRepository.findOne({
             where: { ...params },
             select: fieldSelecs,
+            relations: ['profile'],
         });
     }
 

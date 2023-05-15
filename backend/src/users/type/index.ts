@@ -7,14 +7,20 @@ export type FindUserParams = Partial<{
     provider_id: string;
 }>;
 
-export type CreateUserParams = {
-    email?: string;
-    password?: string;
-    provider?: ProviderType;
-    provider_id?: string;
-    fullname?: string;
-};
+export type CreateUserParams = Partial<{
+    email: string;
+    password: string;
+    provider: ProviderType;
+    provider_id: string;
+    fullname: string;
+}>;
 
 export type OptionFindUser = {
     selectAll?: boolean;
+};
+
+export type UpdateProfileParams = {
+    about?: { lable: string; content: string }[];
+    avatar?: Express.Multer.File;
+    banner?: Express.Multer.File;
 };
