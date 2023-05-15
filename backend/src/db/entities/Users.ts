@@ -6,8 +6,10 @@ import {
     UpdateDateColumn,
     OneToOne,
     JoinColumn,
+    OneToMany,
 } from 'typeorm';
 import { Profile } from './Profile';
+import { Message } from './Message';
 
 export enum ProviderType {
     LOCAL = 'lOCAL',
@@ -38,9 +40,12 @@ export class Users {
     @Column({ default: false })
     active: boolean;
 
-    @OneToOne(() => Profile, { cascade: true })
+    @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
     @JoinColumn()
     profile: Profile;
+
+    @OneToMany(() => Message, (message) => message.author)
+    messages: Message[];
 
     @CreateDateColumn()
     created_at: Date;
