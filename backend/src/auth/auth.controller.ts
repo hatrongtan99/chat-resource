@@ -46,14 +46,22 @@ export class AuthController {
     @Public()
     @UseGuards(GooleAuthGuard)
     @Get('google')
-    async googleAuth() {
-        return 'asdb';
-    }
+    async googleAuth() {}
 
     @Public()
     @UseGuards(GooleAuthGuard)
-    @Get('success')
+    @Get('social/callback')
     async loginSuccess(
+        @Req() req: AuthenticateRequest,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        return await this.authService.signin(req, res);
+    }
+
+    @Public()
+    @Post('success')
+    @UseGuards(GooleAuthGuard)
+    async getToken(
         @Req() req: AuthenticateRequest,
         @Res({ passthrough: true }) res: Response,
     ) {

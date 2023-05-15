@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { AuthenticateRequest, TypeToken, UserSiginParams } from './types';
+import { AuthenticateRequest, TypeToken } from './types';
 import { compareValue } from 'src/utils';
 import { CookieOptions, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
@@ -24,7 +24,7 @@ export class AuthService {
                 ),
             },
         );
-        this.sendToken(res, token, TypeToken.ACCESS_TOKEN, { httpOnly: true });
+        this.sendToken(res, token, TypeToken.ACCESS_TOKEN);
         return { user: req.user, asscessToken: token };
     }
 
@@ -44,8 +44,12 @@ export class AuthService {
         res: Response,
         token: string,
         type: TypeToken,
-        options: CookieOptions = { httpOnly: true },
+        options?: CookieOptions,
     ) {
-        res.cookie(type, token, { ...options });
+        const rootOptions = {
+            httpOnly: true,
+            signed: true,
+        } as CookieOptions;
+        res.cookie(type, token, { ...rootOptions, ...options });
     }
 }
