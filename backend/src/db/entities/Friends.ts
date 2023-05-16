@@ -11,7 +11,7 @@ import { Users } from './Users';
 export enum StatusFriend {
     PENDING = 'PENDING',
     ACCEPTED = 'ACCEPTED',
-    CANCEL = 'CANCEL',
+    REJECTED = 'REJECTED',
 }
 
 @Entity({ name: 'friends' })
