@@ -6,11 +6,15 @@ import { FriendsService } from './friends.service';
 import { AuthUser } from 'src/auth/decorators/public';
 import { Users } from 'src/db/entities';
 import {
+    AcceptRequestFriendDto,
     CancelFriendRequestDto,
     CreateFriendRequestDto,
     UnfriendDto,
 } from './dto';
-import { PayloadEventFriendCreateRequest } from 'src/events/types';
+import {
+    PayloadEventFriendAcceptRequest,
+    PayloadEventFriendCreateRequest,
+} from 'src/events/types';
 
 @Controller(Routes.FRIENDS)
 export class FriendsController {
@@ -61,6 +65,21 @@ export class FriendsController {
         @Body() body: CancelFriendRequestDto,
     ) {
         await this.friendService.cancelFriendRequest(user.id, body.receicId);
+        return {
+            success: true,
+        };
+    }
+
+    @Post('accept-request')
+    async handleAcceptRequest(
+        @AuthUser() user: Users,
+        @Body() body: AcceptRequestFriendDto,
+    ) {
+        await this.friendService.acceptFriend(user.id, body.ortherId);
+        this.eventEmiter.emit(EventFriends.ACCEPT_FRIEND_REQUEST, {
+            senderId: user.id,
+            receicerId: body.ortherId,
+        } as PayloadEventFriendAcceptRequest);
         return {
             success: true,
         };

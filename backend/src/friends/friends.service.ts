@@ -4,9 +4,9 @@ import {
     MethodNotAllowedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Friends } from 'src/db/entities';
+import { Friends, Users } from 'src/db/entities';
 import { StatusFriend } from 'src/db/entities/Friends';
-import { UsersService } from 'src/users/users.service';
+import { UserService } from 'src/users/users.service';
 import { In, Repository } from 'typeorm';
 
 @Injectable()
@@ -14,7 +14,9 @@ export class FriendsService {
     constructor(
         @InjectRepository(Friends)
         private friendRepository: Repository<Friends>,
-        private userService: UsersService,
+        @InjectRepository(Users)
+        private userRepository: Repository<Users>,
+        private userService: UserService,
     ) {}
 
     getFriends(id: number): Promise<Friends[]> {
@@ -90,7 +92,28 @@ export class FriendsService {
             throw new MethodNotAllowedException("Is't Relationship!");
         }
         friend.status = StatusFriend.REJECTED;
+        const user1 = friend.sender;
+        const user2 = friend.reciecer;
+        user1.friends = user1.friends.filter((user) => user.id !== user2.id);
+        user2.friends = user2.friends.filter((user) => user.id !== user1.id);
+        await this.userRepository.save([user1, user2]);
         return this.friendRepository.save(friend);
+    }
+
+    async acceptFriend(idUser: number, ortherIdUser: number): Promise<Friends> {
+        const friendRequest = await this.getRelationById(idUser, ortherIdUser, [
+            StatusFriend.PENDING,
+        ]);
+        if (!friendRequest) {
+            throw new MethodNotAllowedException('Friend request not found!');
+        }
+        const user1 = friendRequest.sender;
+        const user2 = friendRequest.reciecer;
+        user1.friends = [user2];
+        user2.friends = [user1];
+        await this.userRepository.save([user1, user2]);
+        friendRequest.status = StatusFriend.ACCEPTED;
+        return this.friendRepository.save(friendRequest);
     }
 
     isFriend(idUser: number, ortherIdUser: number): Promise<Friends> {
@@ -108,6 +131,10 @@ export class FriendsService {
                     status,
                 },
             ],
+            relations: {
+                sender: true,
+                reciecer: true,
+            },
         });
     }
 
