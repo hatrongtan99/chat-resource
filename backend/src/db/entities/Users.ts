@@ -7,6 +7,8 @@ import {
     OneToOne,
     JoinColumn,
     OneToMany,
+    ManyToMany,
+    JoinTable,
 } from 'typeorm';
 import { Profile } from './Profile';
 import { Message } from './Message';
@@ -39,6 +41,12 @@ export class Users {
 
     @Column({ default: false })
     active: boolean;
+
+    @ManyToMany(() => Users, (user) => user.friends)
+    @JoinTable({
+        name: 'relate_friends',
+    })
+    friends: Users[];
 
     @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
     @JoinColumn()
