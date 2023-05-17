@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_CONTANT } from '../decorators/public';
-import { UsersService } from 'src/users/users.service';
+import { UserService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { SECRET_JWT_ASCCESS_TOKEN } from 'src/utils/contant';
@@ -16,7 +16,7 @@ import { Request } from 'express';
 export class AuthenticationStrategy implements CanActivate {
     constructor(
         private readonly reflector: Reflector,
-        private readonly userService: UsersService,
+        private readonly userService: UserService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
     ) {}
