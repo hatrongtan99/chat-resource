@@ -55,8 +55,11 @@ export class UserProfileController {
         @UploadedFiles() uploadFileUser: UserUpdateFiles,
         @Body() profileUpdate: ProfileUpdateDTO,
     ) {
-        return await this.uploadFileService.uploadSingleFile({
-            file: uploadFileUser.avatar[0],
-        });
+        const params: UpdateProfileParams = {
+            avatar: uploadFileUser?.avatar?.[0],
+            banner: uploadFileUser?.banner?.[0],
+            about: profileUpdate.about,
+        };
+        return this.userProfileSevice.createOrUpdateProfile(user, params);
     }
 }
