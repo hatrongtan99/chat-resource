@@ -1,3 +1,153 @@
+@import url("https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-Hind;
+    }
+
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    a {
+        @apply m-0 p-0;
+    }
+
+    h4 {
+        @apply text-3xl;
+    }
+    h6 {
+        @apply text-xs;
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        @apply bg-bgDarkmodeLight;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        @apply bg-bgDarkmodeComment rounded-lg;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+}
+
+@layer components {
+    .active {
+        @apply bg-darkHover;
+    }
+
+    .badge {
+        @apply absolute inline px-1 py-0.5 bg-red-600 rounded-full bottom-0 right-0 text-center;
+    }
+
+    /* tag friend */
+    .tag-item {
+        @apply flex rounded-md justify-start items-center px-2 py-1.5 hover:bg-darkHover cursor-pointer w-full;
+    }
+
+    .tag-item-avatar {
+        @apply relative w-10 h-10 rounded-full overflow-hidden shrink-0;
+    }
+
+    .status-user {
+        @apply after:absolute after:w-2 after:h-2 after:bg-green-500 after:inline-block after:top-0.5 after:right-0.5 relative after:rounded-full after:overflow-hidden;
+    }
+
+    /* conversation */
+    .name-conversation {
+        @apply text-sm font-thin tracking-wide;
+    }
+
+    /* btn custom */
+    .btn {
+        @apply active:scale-95 inline-flex justify-center items-center rounded-lg text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    }
+
+    .btn.default {
+        @apply bg-bgPrimary hover:bg-bgPrimaryLight text-white;
+    }
+
+    .btn.text {
+        @apply bg-transparent hover:text-slate-900 hover:bg-slate-200;
+    }
+
+    .btn.disabled {
+        @apply bg-stone-600;
+    }
+
+    .btn.md {
+        @apply h-10 py-2 px-4;
+    }
+    .btn.sm {
+        @apply h-7 px-2 text-xs;
+    }
+    .btn.lg {
+        @apply h-11 px-8 text-base;
+    }
+
+    .btn-icon {
+        @apply p-2 rounded-full hover:bg-darkHover cursor-pointer;
+    }
+    /* spinner loadmore  */
+    .spinner_aj0A {
+        transform-origin: center;
+        animation: spinner_KYSC 0.75s infinite linear;
+        @apply fill-stone-400;
+    }
+
+    @keyframes spinner_KYSC {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* menu */
+    .menu-wrapper {
+        @apply px-1.5 py-2 z-10 bg-darkLight min-w-[120px] min-h-[120px] rounded-sm shadow-sm shadow-stone-700;
+    }
+
+    .menu-item {
+        @apply flex items-center px-3 py-1 hover:bg-darkHover rounded-md cursor-pointer transition-all;
+    }
+    /* spinner istyping */
+    .spinner_qM83 {
+        animation: spinner_8HQG 1.05s infinite;
+        @apply fill-stone-400;
+    }
+    .spinner_oXPr {
+        animation-delay: 0.1s;
+    }
+    .spinner_ZTLf {
+        animation-delay: 0.2s;
+    }
+    @keyframes spinner_8HQG {
+        0%,
+        57.14% {
+            animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+            transform: translate(0);
+        }
+        28.57% {
+            animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
+            transform: translateY(-6px);
+        }
+        100% {
+            transform: translate(0);
+        }
+    }
+}

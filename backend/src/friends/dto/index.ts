@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateFriendRequestDto {
     @IsNotEmpty()
@@ -9,7 +9,7 @@ export class CreateFriendRequestDto {
 export class CancelFriendRequestDto {
     @IsNotEmpty()
     @IsNumber()
-    receicId: number;
+    ortherId: number;
 }
 
 export class UnfriendDto {
@@ -22,4 +22,10 @@ export class AcceptRequestFriendDto {
     @IsNotEmpty()
     @IsNumber()
     ortherId: number;
+}
+
+export class SearchFriendsDto {
+    @IsNotEmpty()
+    @IsString()
+    _q: string;
 }

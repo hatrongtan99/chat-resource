@@ -2,21 +2,21 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from 'src/users/users.service';
+import { UserService } from 'src/users/users.service';
 import { CreateUserParams } from 'src/users/type';
 import { ProviderType } from 'src/db/entities/Users';
 import {
     CALBACK_URL_AUTH,
     CLIENT_GOOGLE_ID,
     CLIENT_GOOGLE_SECRET,
-} from 'src/utils/contant';
+} from 'src/utils/constant';
 import { AuthenticateRequest } from '../types';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     constructor(
         private readonly configService: ConfigService,
-        private readonly usersService: UsersService,
+        private readonly usersService: UserService,
     ) {
         super({
             clientID: configService.get<string>(CLIENT_GOOGLE_ID),

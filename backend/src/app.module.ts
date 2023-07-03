@@ -4,10 +4,14 @@ import { DbModule } from './db/db.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { GatewayModule } from './gateway/gateways.module';
-import { UploadFileModule } from './upload-file/upload-file.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { MessagePrivateModule } from './message-private/message-private.module';
 import { FriendsModule } from './friends/friends.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventModule } from './events/events.module';
+import { ConversationsModule } from './conversations/conversations.module';
+import { GroupMessageModule } from './groupMessage/groupMessage.module';
+import { GroupModule } from './group/group.module';
 
 let envFilePath = '.env.development';
 if (process.env.ENVIRONMENT === 'PRODUCTION') envFilePath = '.env.production';
@@ -16,15 +20,17 @@ if (process.env.ENVIRONMENT === 'PRODUCTION') envFilePath = '.env.production';
     imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath }),
         MulterModule.register(),
+        EventEmitterModule.forRoot(),
         DbModule,
         AuthModule,
         UsersModule,
         GatewayModule,
-        UploadFileModule,
         MessagePrivateModule,
         FriendsModule,
+        EventModule,
+        ConversationsModule,
+        GroupModule,
+        GroupMessageModule,
     ],
-    controllers: [],
-    providers: [],
 })
 export class AppModule {}

@@ -6,9 +6,9 @@ import {
     CLOUDINARY_API_SECRET,
     CLOUDINARY_API_KEY,
     CLOUDINARY_NAME,
-} from 'src/utils/contant';
+} from 'src/utils/constant';
 
-const cloudinaryProvider = {
+const CloudinaryProvider = {
     provide: 'CLOUDINARY',
     useFactory: (configService: ConfigService) => {
         return v2.config({
@@ -21,7 +21,7 @@ const cloudinaryProvider = {
 } as Provider;
 
 @Module({
-    providers: [cloudinaryProvider, UploadFileService],
-    exports: [cloudinaryProvider, UploadFileService],
+    providers: [CloudinaryProvider, UploadFileService],
+    exports: [CloudinaryProvider, UploadFileService],
 })
 export class UploadFileModule {}

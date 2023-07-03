@@ -14,7 +14,7 @@ import {
 } from '@nestjs/platform-express';
 import { AuthUser, Public } from 'src/auth/decorators/public';
 import { Profile, Users } from 'src/db/entities';
-import { Routes } from 'src/utils/contant';
+import { Routes } from 'src/utils/constant';
 import { UserProfileService } from './users.profile.service';
 import { UpdateProfileParams } from './type';
 import { ProfileUpdateDTO } from './dto';

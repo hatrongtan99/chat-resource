@@ -19,16 +19,16 @@ export class Friends {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => Users)
+    @OneToOne(() => Users, { createForeignKeyConstraints: false })
     @JoinColumn()
     sender: Users;
 
-    @OneToOne(() => Users)
+    @OneToOne(() => Users, { createForeignKeyConstraints: false })
     @JoinColumn()
-    reciecer: Users;
+    receiver: Users;
 
     @Column({ type: 'enum', enum: StatusFriend, default: StatusFriend.PENDING })
-    status: string;
+    status: StatusFriend;
 
     @CreateDateColumn()
     cretate_at: Date;

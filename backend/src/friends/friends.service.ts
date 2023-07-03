@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Friends, Users } from 'src/db/entities';
 import { StatusFriend } from 'src/db/entities/Friends';
 import { UserService } from 'src/users/users.service';
-import { In, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 
 @Injectable()
 export class FriendsService {
@@ -19,64 +19,90 @@ export class FriendsService {
         private userService: UserService,
     ) {}
 
-    getFriends(id: number): Promise<Friends[]> {
-        const status = StatusFriend.ACCEPTED;
-        return this.friendRepository.find({
-            where: [
-                { sender: { id }, status },
-                { reciecer: { id }, status },
-            ],
-            relations: {
-                sender: true,
-                reciecer: true,
-            },
+    async getFriends(id: number): Promise<Users[]> {
+        const friends = await this.userRepository.query(
+            `
+                SELECT U.*, profile.id as profileId, profile.avatar, profile.banner, profile.about FROM users as U 
+                LEFT JOIN profile ON U.profileId = profile.id
+                WHERE U.id <> ?
+                AND EXISTS (
+                    SELECT * FROM relate_friends AS F
+                    WHERE (
+                       ( F.usersId_1 = ? AND U.id = F.usersId_2 ) OR (F.usersId_2 = ? AND U.id = usersId_1)
+                    )
+                );
+            `,
+            [id, id, id],
+        );
+
+        return friends.map((friend) => {
+            const { profileId, avatar, banner, about, ...rest } = friend;
+            return {
+                ...rest,
+                profile: {
+                    id: profileId,
+                    avatar,
+                    banner,
+                    about,
+                },
+            };
         });
     }
 
     getPending(id: number): Promise<Friends[]> {
         const status = StatusFriend.PENDING;
         return this.friendRepository.find({
-            where: [
-                { sender: { id }, status },
-                { reciecer: { id }, status },
-            ],
-            relations: { sender: true, reciecer: true },
+            where: { receiver: { id }, status },
+            relations: { sender: true, receiver: true },
         });
     }
 
-    async createFriend(senderId: number, reciecerId: number): Promise<Friends> {
-        const isFriend = Boolean(await this.isFriend(senderId, reciecerId));
-        if (isFriend) {
+    async createFriend(senderId: number, receiverId: number): Promise<Friends> {
+        const existRelationShip = await this.getRelationById(
+            senderId,
+            receiverId,
+            [
+                StatusFriend.PENDING,
+                StatusFriend.REJECTED,
+                StatusFriend.ACCEPTED,
+            ],
+        );
+
+        if (
+            existRelationShip &&
+            existRelationShip.status === StatusFriend.ACCEPTED
+        ) {
             throw new BadRequestException('Already is friend');
         }
-        const sender = await this.userService.findUser({ id: senderId });
-        const reciecer = await this.userService.findUser({ id: reciecerId });
-        if (!sender || !reciecer) {
+        const sender = await this.userService.findUser({
+            id: senderId,
+        });
+        const receiver = await this.userService.findUser({
+            id: receiverId,
+        });
+        if (!sender || !receiver) {
             throw new BadRequestException();
         }
-        const exitRelationShip = await this.getRelationById(
-            sender.id,
-            reciecer.id,
-            [StatusFriend.PENDING, StatusFriend.REJECTED],
-        );
-        if (exitRelationShip) {
-            if (exitRelationShip.status == StatusFriend.PENDING) {
+        if (existRelationShip) {
+            if (existRelationShip.status == StatusFriend.PENDING) {
                 throw new BadRequestException('Friend request alredy send!');
             }
-            if (exitRelationShip.status == StatusFriend.REJECTED) {
-                exitRelationShip.status = StatusFriend.PENDING;
-                return this.friendRepository.save(exitRelationShip);
+            if (existRelationShip.status == StatusFriend.REJECTED) {
+                existRelationShip.status = StatusFriend.PENDING;
+                existRelationShip.sender = sender;
+                existRelationShip.receiver = receiver;
+                return this.friendRepository.save(existRelationShip);
             }
         }
         const newRelationship = this.friendRepository.create({
             sender,
-            reciecer,
+            receiver,
         });
         return this.friendRepository.save(newRelationship);
     }
 
-    async cancelFriendRequest(senderId: number, reciecerId: number) {
-        const friendRequest = await this.getRelationById(senderId, reciecerId, [
+    async cancelFriendRequest(senderId: number, receiverId: number) {
+        const friendRequest = await this.getRelationById(senderId, receiverId, [
             StatusFriend.PENDING,
         ]);
         if (!friendRequest) {
@@ -87,13 +113,15 @@ export class FriendsService {
     }
 
     async unfriend(idUser: number, ortherIdUser: number) {
-        const friend = await this.isFriend(idUser, ortherIdUser);
+        const friend = await this.getRelationById(idUser, ortherIdUser, [
+            StatusFriend.ACCEPTED,
+        ]);
         if (!friend) {
             throw new MethodNotAllowedException("Is't Relationship!");
         }
         friend.status = StatusFriend.REJECTED;
         const user1 = friend.sender;
-        const user2 = friend.reciecer;
+        const user2 = friend.receiver;
         user1.friends = user1.friends.filter((user) => user.id !== user2.id);
         user2.friends = user2.friends.filter((user) => user.id !== user1.id);
         await this.userRepository.save([user1, user2]);
@@ -108,34 +136,26 @@ export class FriendsService {
             throw new MethodNotAllowedException('Friend request not found!');
         }
         const user1 = friendRequest.sender;
-        const user2 = friendRequest.reciecer;
+        const user2 = friendRequest.receiver;
         user1.friends = [user2];
-        user2.friends = [user1];
-        await this.userRepository.save([user1, user2]);
+        await this.userRepository.save(user1);
         friendRequest.status = StatusFriend.ACCEPTED;
         return this.friendRepository.save(friendRequest);
     }
 
-    isFriend(idUser: number, ortherIdUser: number): Promise<Friends> {
-        const status = StatusFriend.ACCEPTED;
-        return this.friendRepository.findOne({
-            where: [
-                {
-                    sender: { id: idUser },
-                    reciecer: { id: ortherIdUser },
-                    status,
-                },
-                {
-                    sender: { id: ortherIdUser },
-                    reciecer: { id: idUser },
-                    status,
-                },
-            ],
-            relations: {
-                sender: true,
-                reciecer: true,
-            },
-        });
+    async getStatusFriend(
+        userOneId: number,
+        userTwoId: number,
+    ): Promise<Friends | null> {
+        const relation = await this.getRelationById(userOneId, userTwoId, [
+            StatusFriend.ACCEPTED,
+            StatusFriend.PENDING,
+            StatusFriend.REJECTED,
+        ]);
+
+        if (!relation) return null;
+
+        return relation;
     }
 
     getRelationById(
@@ -143,23 +163,38 @@ export class FriendsService {
         userTwoId: number,
         status: StatusFriend[],
     ): Promise<Friends> {
-        return this.friendRepository.findOne({
-            where: [
-                {
-                    sender: { id: userOneId },
-                    reciecer: { id: userTwoId },
-                    status: In([...status]),
-                },
-                {
-                    sender: { id: userTwoId },
-                    reciecer: { id: userOneId },
-                    status: In([...status]),
-                },
-            ],
-            relations: {
-                sender: true,
-                reciecer: true,
-            },
-        });
+        if (userOneId === userTwoId) {
+            throw new BadRequestException("Can't found realtion yourself!!");
+        }
+
+        return this.friendRepository
+            .createQueryBuilder('friend')
+            .where('friend.status IN (:...status)', { status })
+            .leftJoinAndSelect('friend.sender', 'sender')
+            .leftJoinAndSelect('friend.receiver', 'receiver')
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where(
+                        new Brackets((qb) => {
+                            qb.where('sender.id = :id1', {
+                                id1: userOneId,
+                            }).andWhere('receiver.id = :id2', {
+                                id2: userTwoId,
+                            });
+                        }),
+                    ).orWhere(
+                        new Brackets((qb) => {
+                            qb.where('sender.id = :id2', {
+                                id2: userTwoId,
+                            }).andWhere('receiver.id = :id1', {
+                                id1: userOneId,
+                            });
+                        }),
+                    );
+                }),
+            )
+            .leftJoinAndSelect('sender.friends', 'sender_friends')
+            .leftJoinAndSelect('receiver.friends', 'receiver_friends')
+            .getOne();
     }
 }

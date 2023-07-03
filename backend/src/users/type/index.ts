@@ -3,8 +3,12 @@ import { ProviderType, Users } from 'src/db/entities/Users';
 export type FindUserParams = Partial<{
     id: number;
     email: string;
-    username: string;
     provider_id: string;
+}>;
+
+export type SearchUserParams = Partial<{
+    exceptId: number;
+    username: string;
 }>;
 
 export type CreateUserParams = Partial<{

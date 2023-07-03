@@ -10,9 +10,14 @@ const PORT = process.env.PORT;
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+    app.enableCors({
+        credentials: true,
+        origin: ['http://localhost:3000'],
+    });
     app.useGlobalPipes(new ValidationPipe());
     app.setGlobalPrefix('api');
     app.use(cookieParser('secret'));
+
     app.useWebSocketAdapter(new WebSocketAdapter(app));
     app.use(
         session({

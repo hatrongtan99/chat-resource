@@ -1,30 +1,38 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    ParseIntPipe,
+    Post,
+    Query,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { EventFriends, Routes } from 'src/utils/contant';
+import { EventFriends, Routes } from 'src/utils/constant';
 import { FriendsService } from './friends.service';
-import { AuthUser } from 'src/auth/decorators/public';
+import { AuthUser, Public } from 'src/auth/decorators/public';
 import { Users } from 'src/db/entities';
 import {
     AcceptRequestFriendDto,
     CancelFriendRequestDto,
     CreateFriendRequestDto,
+    SearchFriendsDto,
     UnfriendDto,
 } from './dto';
-import {
-    PayloadEventFriendAcceptRequest,
-    PayloadEventFriendCreateRequest,
-} from 'src/events/types';
+import { PayloadEventFriendCreateRequest } from 'src/events/friends/types';
+import { UserService } from '../users/users.service';
 
 @Controller(Routes.FRIENDS)
 export class FriendsController {
     constructor(
         private readonly friendService: FriendsService,
         private eventEmiter: EventEmitter2,
+        private readonly userService: UserService,
     ) {}
 
     @Get()
-    async HandleGetFriends(@AuthUser() user: Users) {
+    async handleGetFriends(@AuthUser() user: Users) {
         return {
             success: true,
             friends: await this.friendService.getFriends(user.id),
@@ -44,18 +52,17 @@ export class FriendsController {
         @AuthUser() user: Users,
         @Body() body: CreateFriendRequestDto,
     ) {
-        const friendRequest = await this.friendService.createFriend(
+        const payload = await this.friendService.createFriend(
             user.id,
             body.receicId,
         );
-        // event
-        this.eventEmiter.emit(EventFriends.CREATE_FRIEND_REQUEST, {
-            senderId: user.id,
-            receierId: body.receicId,
-        } as PayloadEventFriendCreateRequest);
+        // event;
+        this.eventEmiter.emit(
+            EventFriends.CREATE_FRIEND_REQUEST,
+            payload as PayloadEventFriendCreateRequest,
+        );
         return {
             success: true,
-            data: friendRequest,
         };
     }
 
@@ -64,7 +71,7 @@ export class FriendsController {
         @AuthUser() user: Users,
         @Body() body: CancelFriendRequestDto,
     ) {
-        await this.friendService.cancelFriendRequest(user.id, body.receicId);
+        await this.friendService.cancelFriendRequest(user.id, body.ortherId);
         return {
             success: true,
         };
@@ -75,11 +82,11 @@ export class FriendsController {
         @AuthUser() user: Users,
         @Body() body: AcceptRequestFriendDto,
     ) {
-        await this.friendService.acceptFriend(user.id, body.ortherId);
-        this.eventEmiter.emit(EventFriends.ACCEPT_FRIEND_REQUEST, {
-            senderId: user.id,
-            receicerId: body.ortherId,
-        } as PayloadEventFriendAcceptRequest);
+        const payload = await this.friendService.acceptFriend(
+            user.id,
+            body.ortherId,
+        );
+        this.eventEmiter.emit(EventFriends.ACCEPT_FRIEND_REQUEST, payload);
         return {
             success: true,
         };
@@ -90,6 +97,28 @@ export class FriendsController {
         await this.friendService.unfriend(user.id, body.ortherId);
         return {
             success: true,
+        };
+    }
+
+    @Get('search')
+    handleSearchFriends(
+        @AuthUser() authUser: Users,
+        @Query() searchFriendParams: SearchFriendsDto,
+    ) {
+        return this.userService.searchUser({
+            username: searchFriendParams._q,
+            exceptId: authUser.id,
+        });
+    }
+
+    @Get(':id')
+    async handleGetFriendProfile(
+        @AuthUser() authUser: Users,
+        @Param('id', ParseIntPipe) id: number,
+    ) {
+        return {
+            friend: await this.userService.findUser({ id }),
+            status: await this.friendService.getStatusFriend(authUser.id, id),
         };
     }
 }

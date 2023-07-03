@@ -1,30 +1,12 @@
-import {
-    PrimaryGeneratedColumn,
-    Column,
-    Entity,
-    CreateDateColumn,
-    UpdateDateColumn,
-    OneToMany,
-    ManyToOne,
-    JoinColumn,
-} from 'typeorm';
+import { Entity, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { MessageAttachment } from './MessageAttachment';
-import { Conversation } from './Convesation';
-import { Users } from './Users';
+import { Conversation } from './Conversation';
+import { BaseMessage } from './BaseMessage';
 
 @Entity({ name: 'message' })
-export class Message {
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column({ type: 'text', nullable: true })
-    content: string;
-
+export class Message extends BaseMessage {
     @ManyToOne(() => Conversation, (conversation) => conversation.messages)
     conversation: Conversation;
-
-    @ManyToOne(() => Users, (user) => user.messages)
-    author: Users;
 
     @OneToMany(
         () => MessageAttachment,
@@ -32,10 +14,4 @@ export class Message {
     )
     @JoinColumn()
     attachments: MessageAttachment[];
-
-    @CreateDateColumn()
-    create_at: Date;
-
-    @UpdateDateColumn()
-    update_at: Date;
 }

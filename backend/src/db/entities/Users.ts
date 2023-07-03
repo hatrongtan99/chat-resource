@@ -9,9 +9,11 @@ import {
     OneToMany,
     ManyToMany,
     JoinTable,
+    ManyToOne,
 } from 'typeorm';
 import { Profile } from './Profile';
 import { Message } from './Message';
+import { Group } from './Group';
 
 export enum ProviderType {
     LOCAL = 'lOCAL',
@@ -41,6 +43,9 @@ export class Users {
 
     @Column({ default: false })
     active: boolean;
+
+    @ManyToMany(() => Group, (group) => group.users)
+    group: Group[];
 
     @ManyToMany(() => Users, (user) => user.friends)
     @JoinTable({

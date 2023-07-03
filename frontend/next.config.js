@@ -1,8 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
-}
+    experimental: {
+        appDir: true,
+        serverActions: true,
+    },
+    webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+        config.externals.push({
+            "utf-8-validate": "commonjs utf-8-validate",
+            bufferutil: "commonjs bufferutil",
+        });
+        return config;
+    },
+    images: {
+        remotePatterns: [
+            {
+                hostname: "res.cloudinary.com",
+            },
+        ],
+    },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

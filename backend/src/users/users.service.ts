@@ -5,12 +5,13 @@ import {
     CreateUserParams,
     FindUserParams,
     OptionFindUser,
+    SearchUserParams,
 } from 'src/users/type';
 import { Repository } from 'typeorm';
 import { hashValue } from 'src/utils';
 
 @Injectable()
-export class UsersService {
+export class UserService {
     constructor(
         @InjectRepository(Users)
         private readonly usersRepository: Repository<Users>,
@@ -19,6 +20,7 @@ export class UsersService {
     findUser(params: FindUserParams, options?: OptionFindUser): Promise<Users> {
         let fieldSelecs: (keyof Users)[] = [
             'email',
+            'fullname',
             'id',
             'profile',
             'created_at',
@@ -34,6 +36,17 @@ export class UsersService {
             select: fieldSelecs,
             relations: ['profile'],
         });
+    }
+
+    searchUser(params: SearchUserParams): Promise<Users[]> {
+        return this.usersRepository
+            .createQueryBuilder('user')
+            .where('user.fullname like :username', {
+                username: `%${params.username}%`,
+            })
+            .andWhere('user.id != :id', { id: params.exceptId })
+            .leftJoinAndSelect('user.profile', 'profile')
+            .getMany();
     }
 
     async createUser(userParams: CreateUserParams): Promise<Users> {
