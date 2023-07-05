@@ -5,17 +5,20 @@ import { MdGroups2 } from "react-icons/md";
 import { HiChatBubbleLeftRight } from "react-icons/hi2";
 import { IoNotifications } from "react-icons/io5";
 import NavSidebarWrapper from "./navSidebarWrapper/NavSidebarWrapper";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { ConversationsContext } from "@/context/conversations/ConversationProvider";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hook/useAuth";
 import { FriendsContext } from "@/context/friends/FriendsProvider";
+import { GroupContext } from "@/context/group/GroupProvider";
 
 const SIZE_ICON = "1.25rem";
 
 const Sidebar = () => {
     const { user } = useAuth();
     const { conversationId } = useContext(ConversationsContext);
+    const { groupId } = useContext(GroupContext);
+
     const { numberNotify } = useContext(FriendsContext);
     const pathname = usePathname();
 
@@ -35,6 +38,18 @@ const Sidebar = () => {
         },
         [pathname]
     );
+
+    console.log(pathname);
+
+    const nextUrlExistMessageId = useMemo<string>(() => {
+        if (pathname.includes("/conversation") && conversationId) {
+            return `/friends/conversation/${conversationId}`;
+        } else if (pathname.includes("/groups") && groupId) {
+            return `/friends/groups/${groupId}`;
+        } else {
+            return "/friends";
+        }
+    }, [pathname, groupId, conversationId]);
 
     return (
         <aside className="py-4 px-2 bg-[#292725] flex flex-col gap-2 border-r border-gray-900 overflow-x-visible">
@@ -69,11 +84,7 @@ const Sidebar = () => {
                 active={acctiveByPathname("friends", "profile")}
                 tooltip="Bạn bè"
                 badge={0}
-                link={
-                    conversationId
-                        ? `/friends/conversation/${conversationId}`
-                        : "/friends"
-                }
+                link={nextUrlExistMessageId}
             >
                 <MdGroups2 size={SIZE_ICON} />
             </NavSidebarWrapper>
