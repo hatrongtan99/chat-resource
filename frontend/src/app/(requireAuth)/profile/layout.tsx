@@ -5,20 +5,14 @@ import FriendsContainer from "@/components/friends/FriendsContainer";
 import LeftResizeable from "@/components/leftResizeable";
 import SearchFriends from "@/components/search/searchFriends";
 import SearchFriendsResult from "@/components/search/searchFriends/SearchFriendsResult";
-import { ReactNode, useState } from "react";
+import React, { ReactNode, useState } from "react";
 
-const layout = ({
-    children,
-    friendsId,
-}: {
-    children: ReactNode;
-    friendsId: ReactNode;
-}) => {
+const layout = ({ children }: { children: ReactNode }) => {
     const [textSearch, setTextSearch] = useState("");
 
     return (
-        <div className="flex w-full">
-            <LeftResizeable className="flex flex-col basis-1/3 border-r border-darkHover h-[100vh]">
+        <div className="flex w-full h-full">
+            <LeftResizeable>
                 <TopWithLable lable="Friends" />
                 <SearchFriends
                     textSearch={textSearch}
@@ -30,9 +24,8 @@ const layout = ({
                     <FriendsContainer />
                 )}
             </LeftResizeable>
-            <div className="grow flex flex-col h-[100vh]">
+            <div className="grow lg:mx-20 mx-5 2xl:mx-80 xl:mx-60">
                 {children}
-                {friendsId}
             </div>
         </div>
     );

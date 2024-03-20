@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hook/useAuth";
 import { FriendsContext } from "@/context/friends/FriendsProvider";
 import { GroupContext } from "@/context/group/GroupProvider";
+import Link from "next/link";
 
 const SIZE_ICON = "1.25rem";
 
@@ -38,8 +39,6 @@ const Sidebar = () => {
         },
         [pathname]
     );
-
-    console.log(pathname);
 
     const nextUrlExistMessageId = useMemo<string>(() => {
         if (pathname.includes("/conversation") && conversationId) {
@@ -89,14 +88,19 @@ const Sidebar = () => {
                 <MdGroups2 size={SIZE_ICON} />
             </NavSidebarWrapper>
 
-            <div className="mt-auto cursor-pointer">
-                <div className="overflow-hidden w-10 h-10 rounded-full relative">
-                    <Image
-                        src={user?.user.profile?.avatar ?? "/defaultAvatar.png"}
-                        fill
-                        alt="avatar"
-                    />
-                </div>
+            <div className="mt-auto ">
+                <Link href="/profile/me">
+                    <div className="overflow-hidden w-10 h-10 rounded-full relative">
+                        <Image
+                            src={
+                                user?.user.profile?.avatar ??
+                                "/defaultAvatar.png"
+                            }
+                            fill
+                            alt="avatar"
+                        />
+                    </div>
+                </Link>
             </div>
         </aside>
     );

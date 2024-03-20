@@ -1,41 +1,27 @@
 import {
     Body,
     Controller,
-    Inject,
     Patch,
-    Post,
-    UploadedFile,
     UploadedFiles,
     UseInterceptors,
 } from '@nestjs/common';
-import {
-    FileFieldsInterceptor,
-    FileInterceptor,
-} from '@nestjs/platform-express';
-import { AuthUser, Public } from 'src/auth/decorators/public';
-import { Profile, Users } from 'src/db/entities';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { AuthUser } from 'src/auth/decorators/public';
+import { Users } from 'src/db/entities';
 import { Routes } from 'src/utils/constant';
 import { UserProfileService } from './users.profile.service';
 import { UpdateProfileParams } from './type';
-import { ProfileUpdateDTO } from './dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import * as fs from 'fs';
-import { v2 } from 'cloudinary';
-import { UploadFileService } from 'src/upload-file/upload-file.service';
+import { AboutItem } from './dto';
+import { ValidationAboutProfile } from './pipe/validationAboutProfile';
 
 type UserUpdateFiles = {
-    about?: string;
     avatar?: Express.Multer.File[];
     banner?: Express.Multer.File[];
 };
 
 @Controller(Routes.PROFILE)
 export class UserProfileController {
-    constructor(
-        private readonly userProfileSevice: UserProfileService,
-        private readonly uploadFileService: UploadFileService,
-    ) {}
+    constructor(private readonly userProfileSevice: UserProfileService) {}
 
     @Patch()
     @UseInterceptors(
@@ -53,12 +39,12 @@ export class UserProfileController {
     async updateProfileUser(
         @AuthUser() user: Users,
         @UploadedFiles() uploadFileUser: UserUpdateFiles,
-        @Body() profileUpdate: ProfileUpdateDTO,
+        @Body('about', new ValidationAboutProfile()) about: AboutItem[] | null,
     ) {
         const params: UpdateProfileParams = {
             avatar: uploadFileUser?.avatar?.[0],
             banner: uploadFileUser?.banner?.[0],
-            about: profileUpdate.about,
+            about: about,
         };
         return this.userProfileSevice.createOrUpdateProfile(user, params);
     }

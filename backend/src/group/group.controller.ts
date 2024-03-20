@@ -149,10 +149,4 @@ export class GroupController {
             success: true,
         };
     }
-
-    @Public()
-    @Get('test')
-    handleTest() {
-        return this.groupService.test();
-    }
 }

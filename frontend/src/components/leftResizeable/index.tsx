@@ -1,6 +1,8 @@
 "use client";
 
 import { ConfigContext } from "@/context/config/ConfigProvider";
+import { mergeClassName } from "@/utils";
+import cx from "classnames";
 import React, {
     ReactNode,
     useRef,
@@ -9,7 +11,6 @@ import React, {
     useCallback,
     useContext,
 } from "react";
-import { twMerge } from "tailwind-merge";
 import { ClassNameValue } from "tailwind-merge/dist/lib/tw-join";
 const LeftResizeable = ({
     children,
@@ -20,7 +21,8 @@ const LeftResizeable = ({
 }) => {
     // RESIZE
     const [isResizing, setIsResizing] = useState<boolean>(false);
-    const { widthResize, setWidthResize } = useContext(ConfigContext);
+    const { widthResize, setWidthResize, openSidebar } =
+        useContext(ConfigContext);
     const refComponentResize = useRef<HTMLDivElement>(null);
 
     const resize = useCallback(
@@ -52,16 +54,19 @@ const LeftResizeable = ({
 
     return (
         <div
-            className={twMerge(
-                "flex border-r border-darkHover flex-col relative min-w-[220px] max-w-[300px] ",
-                className
+            className={mergeClassName(
+                "flex border-r  border-darkHover flex-col relative",
+                className,
+                cx({
+                    "min-w-[220px]": openSidebar,
+                })
             )}
-            style={{ flexBasis: widthResize }}
+            style={{ width: widthResize }}
             ref={refComponentResize}
         >
             {children}
             <div
-                className="absolute w-1 bg-transparent h-full hover:cursor-col-resize left-[100%]"
+                className="absolute w-2 hover:w-4 transition-[width] hover:bg-blue-700 bg-transparent h-full hover:cursor-col-resize left-[100%] z-20 "
                 onMouseDown={(e) => {
                     e.preventDefault();
                     setIsResizing(true);

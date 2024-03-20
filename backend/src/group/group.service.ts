@@ -72,15 +72,6 @@ export class GroupService {
             .getMany();
     }
 
-    test() {
-        return this.groupRepository
-            .createQueryBuilder('group')
-            .leftJoinAndSelect('group.users', 'user')
-            .where('user.id = 10')
-            .leftJoinAndSelect('group.users', 'users')
-            .getQuery();
-    }
-
     async addFriendToGroup({
         userId,
         usersIdList,

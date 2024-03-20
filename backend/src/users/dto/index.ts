@@ -1,18 +1,19 @@
 import {
     IsArray,
     IsEmail,
-    IsEmpty,
     IsNotEmpty,
-    IsNumber,
     IsOptional,
     IsString,
-    Max,
 } from 'class-validator';
 
-export class ProfileUpdateDTO {
-    @IsOptional()
-    @IsArray()
-    about?: { lable: string; content: string }[];
+export class AboutItem {
+    @IsNotEmpty()
+    @IsString()
+    lable: string;
+
+    @IsNotEmpty()
+    @IsString()
+    content: string;
 }
 
 export class GetUserProviderDTO {

@@ -1,6 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Observable } from 'rxjs';
 
 export class GooleAuthGuard extends AuthGuard('google') {
     constructor() {

@@ -16,6 +16,8 @@ import {
 } from "react";
 
 interface GroupContextProps {
+    groupId: number | null;
+    setGroupId: Dispatch<SetStateAction<number | null>>;
     groups: Group[];
     setGroups: Dispatch<SetStateAction<Group[]>>;
     status: "loading" | "error" | "success";
@@ -31,6 +33,7 @@ interface GroupContextProps {
 export const GroupContext = createContext({} as GroupContextProps);
 
 const GroupProvider = ({ children }: { children: ReactNode }) => {
+    const [groupId, setGroupId] = useState<number | null>(null);
     const [groups, setGroups] = useState<Group[]>([]);
     const { accessToken, id } = useAccesstoken();
     const { error: errorrToast } = useToast();
@@ -96,6 +99,8 @@ const GroupProvider = ({ children }: { children: ReactNode }) => {
                 updateGroups,
                 deleteGroup,
                 getGroup,
+                groupId,
+                setGroupId,
             }}
         >
             {children}

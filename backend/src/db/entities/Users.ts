@@ -9,7 +9,6 @@ import {
     OneToMany,
     ManyToMany,
     JoinTable,
-    ManyToOne,
 } from 'typeorm';
 import { Profile } from './Profile';
 import { Message } from './Message';

@@ -1,19 +1,22 @@
 "use client";
-import { useAuth } from "@/hook/useAuth";
+
+import { GroupContext } from "@/context/group/GroupProvider";
 import { Group } from "@/types/Group";
 import cx from "classnames";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useContext } from "react";
 
 const GroupItem = ({ data }: { data: Group }) => {
-    const { user } = useAuth();
-
     const params = useParams();
-
+    const { setGroupId } = useContext(GroupContext);
     return (
         <div className="px-2 mt-1">
-            <Link href={`/groups/${data.id}`}>
+            <Link
+                href={`/groups/${data.id}`}
+                onClick={() => setGroupId(data.id)}
+            >
                 <div
                     className={cx("tag-item ", {
                         active: parseInt(params?.groupId) === data.id,

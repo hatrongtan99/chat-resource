@@ -22,7 +22,7 @@ export class Group {
     title: string;
 
     @OneToOne(() => Users, { createForeignKeyConstraints: false })
-    @JoinColumn()
+    @JoinColumn()   
     creator: Users;
 
     @OneToOne(() => Users, { createForeignKeyConstraints: false })

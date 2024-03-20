@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import TopMessages from "./TopMessages";
 import MessagesContainer from "./MessagesContainer";
 import InputMessage from "./InputMessage";
@@ -8,12 +8,19 @@ import useSocketMessagePrivate from "@/hook/messagePrivate/useSocketMessagePriva
 import { MessagePrivateContext } from "@/context/message/MessagePrivateProvider";
 import { ConversationsContext } from "@/context/conversations/ConversationProvider";
 import { Conversation } from "@/types/Conversations";
+import { useParams } from "next/navigation";
 
 const MessagePrivateWrapper = ({
     conversationId,
 }: {
     conversationId: number;
 }) => {
+    const { setConversationId } = useContext(ConversationsContext);
+
+    useEffect(() => {
+        setConversationId(conversationId);
+    }, []);
+
     useFetchOrUpdateMessagePrivate({ conversationId });
 
     const { isRecipientTyping, sendStatusTyping } = useSocketMessagePrivate({

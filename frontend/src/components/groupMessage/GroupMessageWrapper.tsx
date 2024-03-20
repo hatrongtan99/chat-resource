@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import InputMessage from "../messages/InputMessage";
 import { GroupMessageContext } from "@/context/groupMessage/GroupMessageProvider";
 import useFetchOrUpdateGroupMessage from "@/hook/group/useFetchOrUpdateGroupMessage";
@@ -11,6 +11,12 @@ import useSocketGroupMessage from "@/hook/group/useSocketGroupMessage";
 import Spinner from "../Spinner";
 
 const GroupMessageWrapper = ({ groupId }: { groupId: number }) => {
+    const { setGroupId } = useContext(GroupContext);
+
+    useEffect(() => {
+        setGroupId(groupId);
+    }, []);
+
     const { ortherIsTyping, sendStatusTyping } = useSocketGroupMessage({
         groupId,
     });

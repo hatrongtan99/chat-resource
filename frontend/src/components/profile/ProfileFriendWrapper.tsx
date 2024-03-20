@@ -7,7 +7,7 @@ import { useAccesstoken } from "@/hook/useAuth";
 import { getFriendProfile } from "@/api/friends";
 import Spinner from "../Spinner";
 
-const ProfileWrapper = ({ idFriend }: { idFriend: number }) => {
+const ProfileFriendWrapper = ({ idFriend }: { idFriend: number }) => {
     const { accessToken, id } = useAccesstoken();
 
     const queryClient = useQueryClient();
@@ -35,4 +35,4 @@ const ProfileWrapper = ({ idFriend }: { idFriend: number }) => {
     );
 };
 
-export default ProfileWrapper;
+export default ProfileFriendWrapper;

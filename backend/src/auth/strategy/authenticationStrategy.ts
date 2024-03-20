@@ -34,7 +34,7 @@ export class AuthenticationStrategy implements CanActivate {
         return true;
     }
 
-    async validateToken(req: Request) {
+    private async validateToken(req: Request) {
         let [type, token] = req.headers.authorization?.split(' ') ?? [];
 
         if (!token) {
